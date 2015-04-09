@@ -42,6 +42,8 @@ public abstract class GalaxyConstants {
   public static final String TABLENAME_SHIPS = "ships";
   public static final String TABLENAME_CLASSES = "classes";
   public static final String TABLENAME_SOLARSYSTEMS = "solarsystems";
+  public static final String TABLENAME_FITTING = "fitting";
+  public static final String TABLENAME_FITTINGS = "fittings";
 
   // Initialize some common constants and variables
   public static final String CLASSES_CSV = "Missile boat, Torpedo boat, Minesweeper," +
