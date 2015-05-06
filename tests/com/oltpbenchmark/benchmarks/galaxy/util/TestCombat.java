@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import com.oltpbenchmark.benchmarks.galaxy.GalaxyConstants;
 import com.oltpbenchmark.benchmarks.galaxy.procedures.Move;
-import com.oltpbenchmark.util.Pair;
 
 /**
  * A class that checks the correctness of the Move procedure
@@ -54,6 +53,8 @@ public class TestCombat extends TestCase {
     public final String getShipCount = "SELECT COUNT(*) FROM " + ships + ";"; //for later use
     public final String getShipHealth = "SELECT health_points FROM " + ships +
             " where ship_id = ?;";
+    
+    
     
 
     /*
@@ -145,7 +146,7 @@ public class TestCombat extends TestCase {
         ResultSet tmp = null;
         int[] health = new int[shipid.length];
         for (int i = 0; i < shipid.length; i++) {
-            ps = conn.prepareStatement(getShipCount);
+            ps = conn.prepareStatement(getShipHealth);
             ps.setInt(1, shipid[i]);
             tmp = ps.executeQuery();
             try {
@@ -156,6 +157,37 @@ public class TestCombat extends TestCase {
             }
         }
         return health;
+    }
+    
+    private fightvalues getFightValues(int[] shipid, int[] fitsship, int[] fitsfitid,
+            int[] fitid, int[] fitval, int[] fittype ) {
+        int caldmg1 = 0;
+        int caldmg2 = 0;
+        int[] def = new int[shipid.length];
+        for (int i = 0; i < def.length; i++) {
+            def[i] = 0;
+        }
+        for (int i = 0; i < shipid.length; i++) {
+            for (int k = 0; k < fitsship.length; k++) {
+                if (fitsship[k] == shipid[i]) {
+                    for (int j = 0; j < fitid.length; j++) {
+                        if (fitid[j] == fitsfitid[k] && fittype[j] == 0) {
+                            if (fittype[j] == 0) { // put attackvalue here
+                                if (i % 2 == 0) {
+                                    caldmg1 += fitval[j];
+                                } else {
+                                    caldmg2 += fitval[j];
+                                }
+                            } else {
+                                def[i] += fitval[j]; 
+                            }
+                        }
+                    }
+                }
+            }            
+        }
+        fightvalues tmp = new fightvalues(def, caldmg1, caldmg2);
+        return tmp;
     }
     
     
@@ -180,37 +212,45 @@ public class TestCombat extends TestCase {
         int[] fitsship = new int[fitssize];
         int[] fitsfitid = new int[fitssize];  
         for (int i = 0; i < shipsize; i++) {
-            shipid[i] = 133742 + i;
+            shipid[i] = 0 - i;
             x[i] = 0 + i;
             y[i] = 0 + i;
             hp[i] = 100;
         }
         for (int i = 0; i < fitsize; i++) {
-            fitid[i] = 133742 + i;
+            fitid[i] = 0 - i;
         }
         fittype = fit_type;
         fitval = fit_value;
         if (fitsize != 0) {
             for (int i = 0; i < fitssize; i++) {
-                fitsid[i] = 133742 + i;
-                fitsship[i] = 133742 + (i % shipsize);
-                fitsfitid[i] = 133742 + (i % fitsize);
+                fitsid[i] = 0 - i;
+                fitsship[i] = 0 - (i % shipsize);
+                fitsfitid[i] = 0 - (i % fitsize);
             }
         }
         createTestValues(base, shipid, x, y, hp, fitid, fittype, fitval, fitsid, fitsship, fitsfitid);
         combatDefined(0, shipsize);
-        int[] calhp = new int[shipsize];
+        fightvalues calvals = getFightValues(shipid, fitsship, fitsfitid,
+             fitid, fitval, fittype);
+        int caldmg1 = calvals.getdmg1();
+        int caldmg2 = calvals.getdmg2();
+        int[] caldef = calvals.getdef();
+        
+        caldmg1 = (int) Math.ceil(caldmg1 / shipsize);
+        caldmg2 = (int) Math.floor(caldmg2 / shipsize);
         for (int i = 0; i < shipsize; i++) {
-            /*
-             * calculate expected hp here
-             */
-            calhp[i] = 100; //dummy #
+            if (i % 2 == 0) {
+                hp[i] = hp[i] - (Math.max(0, caldef[i] - caldmg1));
+            } else {
+                hp[i] = hp[i] - (Math.max(0, caldef[i] - caldmg2));
+            }
         }
         int[] posthp = getHealth(shipid);
         for (int i = 0; i < shipsize; i++) {
             assertTrue("Ship " + shipid[i] + " have correct hp after a combat with " + shipsize +
                     " combatants",
-                    posthp[i] == calhp[i]);
+                    posthp[i] == hp[i]);
         }
         removeTestValues(shipid, fitid, fitsid);
     }
@@ -263,6 +303,30 @@ public class TestCombat extends TestCase {
          */
 
     }
-
+    class fightvalues {
+        int[]def;
+        int dmg1;
+        int dmg2;
+        
+        fightvalues(int[] caldef, int caldmg1, int caldmg2) {
+            this.def = caldef;
+            this.dmg1 = caldmg1;
+            this.dmg2 = caldmg2;
+        }
+        
+        public int getdmg1() {
+            return dmg1;
+        }
+        
+        public int getdmg2() {
+            return dmg2;
+        }
+        
+        public int[] getdef() {
+            return def;
+        }
+        
+    }
+    
 
 }
