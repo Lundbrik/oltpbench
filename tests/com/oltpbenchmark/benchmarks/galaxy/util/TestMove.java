@@ -52,7 +52,7 @@ public class TestMove extends TestCase {
                 ship.position = new ImmutableTriple<Long, Long, Long>(
                         rs.getLong(2), rs.getLong(3), rs.getLong(4)
                         );
-                ship.reachability = rs.getInt(5);
+                ship.reachability = rs.getLong(5);
                 ships.add(ship);
             }
         } finally {
@@ -70,7 +70,7 @@ public class TestMove extends TestCase {
         try {
             assertTrue("There should be a solar system with id " + id, rs.next());
             solar = new SolarSystem(rs.getInt(1), rs.getInt(5),  // id, security 
-                    rs.getLong(2), rs.getLong(3), rs.getInt(4)); // x, y, z
+                    rs.getLong(2), rs.getLong(3), rs.getLong(4)); // x, y, z
         } finally {
             rs.close();
         }

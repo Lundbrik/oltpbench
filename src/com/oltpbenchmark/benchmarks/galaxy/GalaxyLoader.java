@@ -29,9 +29,9 @@ public class GalaxyLoader extends Loader {
 
     @Override
     public void load() throws SQLException {
-        // Fit constants to scale
-        int scale = (int) Math.round(
-                benchmark.getWorkloadConfiguration().getScaleFactor());
+        // Fit constants to scale, which should be at least 1
+        int scale = (int) Math.max(1, Math.round(
+                benchmark.getWorkloadConfiguration().getScaleFactor()));
         int numClasses = GalaxyConstants.NUM_CLASSES * scale;
         int numSolarSystems = GalaxyConstants.NUM_SOLAR_SYSTEMS * scale;
         int numFitting = GalaxyConstants.NUM_FITTING * scale;

@@ -34,8 +34,10 @@ public class GalaxyWorker extends Worker {
         super(benchmarkModule, id);
         this.rng = new Random();
         this.regions = regions;
-        this.i = 0;
-        chooseRegion();
+        if (regions.size() != 0) {
+            this.i = 0;
+            chooseRegion();
+        }
     }
 
     @Override

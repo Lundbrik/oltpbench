@@ -16,6 +16,7 @@ public class TestGalaxyWorker extends AbstractTestWorker<GalaxyBenchmark> {
     @Override
     protected void setUp() throws Exception {
         super.setUp(GalaxyBenchmark.class, TestGalaxyBenchmark.PROC_CLASSES);
+        this.workConf.setScaleFactor(1);
         conn.setAutoCommit(false);
     }
     

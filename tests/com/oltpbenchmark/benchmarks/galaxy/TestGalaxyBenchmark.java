@@ -15,6 +15,7 @@ public class TestGalaxyBenchmark extends AbstractTestBenchmarkModule<GalaxyBench
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp(GalaxyBenchmark.class, PROC_CLASSES);
+		this.workConf.setScaleFactor(1);
 	}
 
 }
