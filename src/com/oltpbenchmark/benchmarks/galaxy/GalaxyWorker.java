@@ -34,7 +34,7 @@ public class GalaxyWorker extends Worker {
         super(benchmarkModule, id);
         this.rng = new Random();
         this.regions = regions;
-        if (regions.size() != 0) {
+        if (regions.size() != 0) { // i.e. we should not be in testing
             this.i = 0;
             chooseRegion();
         }

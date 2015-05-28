@@ -9,10 +9,10 @@
     <password>test</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
 
-    <scalefactor>1</scalefactor>
+    <scalefactor>10</scalefactor>
 
     <!-- The workload -->
-    <terminals>2</terminals>
+    <terminals>10</terminals>
     <works>
         <work>
           <time>120</time>
