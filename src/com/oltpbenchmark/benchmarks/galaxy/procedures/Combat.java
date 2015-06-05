@@ -57,6 +57,15 @@ public class Combat extends GalaxyProcedure {
         "GROUP BY " + GalaxyConstants.TABLENAME_SHIPS + ".ship_id;"
     );
 
+    public final SQLStmt lock = new SQLStmt(
+        "SELECT * FROM ships " +
+        "WHERE position_x BETWEEN ? AND ? " +
+        "AND position_y BETWEEN ? AND ? " +
+        "AND position_z BETWEEN ? AND ? " +
+        "AND solar_system_id = ? " +
+        "FOR UPDATE;"
+        );
+
     public final String getShipCount = "SELECT COUNT(*) FROM " + GalaxyConstants.TABLENAME_SHIPS + " WHERE solar_system_id = 0;"; //for debugging
 
     // Update the ship with the given ship_ids information
@@ -146,8 +155,17 @@ public class Combat extends GalaxyProcedure {
     private ArrayList<Ship> getShipInformation(Connection conn, int solarSystemId,
             ImmutableTriple<Long, Long, Long> minPos,
             ImmutableTriple<Long, Long, Long> maxPos) throws SQLException {
+        PreparedStatement ps = getPreparedStatement(conn, lock);
+        ps.setLong(1, minPos.left);
+        ps.setLong(2, maxPos.left);
+        ps.setLong(3, minPos.middle);
+        ps.setLong(4, maxPos.middle);
+        ps.setLong(5, minPos.right);
+        ps.setLong(6, maxPos.right);
+        ps.setInt(7, solarSystemId);
+        ps.executeQuery();
         // Get ship information
-        PreparedStatement ps = getPreparedStatement(conn, queryShipsInRange);
+        ps = getPreparedStatement(conn, queryShipsInRange);
         ps.setLong(1, minPos.left);
         ps.setLong(2, maxPos.left);
         ps.setLong(3, minPos.middle);

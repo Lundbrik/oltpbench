@@ -26,14 +26,14 @@ public class Move extends GalaxyProcedure {
     // Solar system information
     private ImmutableTriple<Long, Long, Long> systemMax;
 
-    // Get ship podsitions, that are within range
+    // Get ship positions, that are within range
     public final SQLStmt getShips = new SQLStmt(
             "SELECT position_x, position_y, position_z FROM " +
             GalaxyConstants.TABLENAME_SHIPS + " WHERE " +
             "position_x BETWEEN ? AND ? AND " +
             "position_y BETWEEN ? AND ? AND " +
             "position_z BETWEEN ? AND ? AND " +
-            "solar_system_id = ?;"
+            "solar_system_id = ? FOR UPDATE;"
     );
 
     // Get ship, class and solarsystem information
