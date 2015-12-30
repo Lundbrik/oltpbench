@@ -23,9 +23,7 @@ CREATE TABLE classes
 CREATE TABLE solar_systems
 (
   solar_system_id integer NOT NULL,
-  max_position_x  bigint  NOT NULL,
-  max_position_y  bigint  NOT NULL,
-  max_position_z  bigint  NOT NULL,
+  max_position    geography(POINTZ, 4326),
   security_level  integer NOT NULL,
   PRIMARY KEY
   (
@@ -37,18 +35,15 @@ CREATE TABLE solar_systems
 CREATE TABLE ships
 (
   ship_id         integer NOT NULL,
-  position_x      bigint  NOT NULL,
-  position_y      bigint  NOT NULL,
-  position_z	  bigint  NOT NULL,
+  position        geography(POINTZM, 4326),
   class_id        integer NOT NULL REFERENCES classes (class_id),
-  solar_system_id integer NOT NULL REFERENCES solar_systems (solar_system_id),
   health_points   integer NOT NULL,
   PRIMARY KEY
   (
     ship_id
   )
 );
-CREATE INDEX idx_ships_x ON ships (solar_system_id, position_x);
+CREATE INDEX idx_ships ON ships USING GIST (position);
 
 -- fitting table holds information about a fitting
 CREATE TABLE fitting
