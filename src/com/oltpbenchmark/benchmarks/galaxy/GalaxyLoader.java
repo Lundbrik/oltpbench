@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.postgis.*;
+import org.postgresql.*;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
@@ -18,6 +21,9 @@ import com.oltpbenchmark.util.SQLUtil;
  */
 public class GalaxyLoader extends Loader {
 
+    private final SQLStmt insertShip = new SQLStmt("INSERT INTO ships(ship_id, position, class_id, health_points)" +
+                        "VALUES (?, ST_GeographyFromText('SRID=4326; POINTZM(?, ?, ?, ?), ?, ?)");
+
     /**
      * Creates a new instance of the GalaxyLoader class
      * @param benchmark The benchmark class the loader is called from
@@ -25,6 +31,11 @@ public class GalaxyLoader extends Loader {
      */
     public GalaxyLoader(GalaxyBenchmark benchmark, Connection conn) {
         super(benchmark, conn);
+        try {
+            ((org.postgresql.PGConnection)conn).addDataType("point", Class.forName("org.postgis.Point"));
+        } catch (Exception e) {
+            System.out.println("Fail!");
+        }
     }
 
     @Override
@@ -143,8 +154,7 @@ public class GalaxyLoader extends Loader {
         tbl = getTableCatalog(GalaxyConstants.TABLENAME_SHIPS);
         ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl, escapeNames));
         tbl = getTableCatalog(GalaxyConstants.TABLENAME_FITTINGS);
-        PreparedStatement ps2 = this.conn.prepareStatement(
-                SQLUtil.getInsertSQL(tbl, escapeNames));
+        PreparedStatement ps2 = getPreparedStatement(conn, insertShip);
         int fittingsId = 0; // TODO fittings id hack
         for  (int i = 0; i < numShips; i++) {
             int solarSystemId = rng.nextInt(numSolarSystems);
@@ -157,8 +167,8 @@ public class GalaxyLoader extends Loader {
             ps.setLong(2, positionX);
             ps.setLong(3, positionY);
             ps.setLong(4, positionZ);
-            ps.setInt(5, classId + 1);
-            ps.setInt(6, solarSystemId + 1);
+            ps.setInt(5, solarSystemId);
+            ps.setInt(6, classId + 1);
             ps.setInt(7, classHealths[classId]);
             ps.addBatch();
 
